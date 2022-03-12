@@ -2,6 +2,7 @@
 collections:
   - name: azure.azcollection
   - name: community.general
+  - name: awx.awx
 
 roles:
   - name: redhatinsights.insights-client
