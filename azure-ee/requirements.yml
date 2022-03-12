@@ -1,6 +1,7 @@
 ---
 collections:
   - name: azure.azcollection
+  - name: community.general
 
 roles:
   - name: redhatinsights.insights-client
