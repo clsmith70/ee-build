@@ -3,7 +3,6 @@ collections:
   - name: amazon.aws
   - name: community.general
   - name: awx.awx
-  - name: netaddr
 
 roles:
   - name: redhatinsights.insights-client
