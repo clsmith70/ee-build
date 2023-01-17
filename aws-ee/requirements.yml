@@ -3,8 +3,6 @@ collections:
   - name: amazon.aws
   - name: community.general
   - name: awx.awx
-  - name: botocore>=1.21.0
-  - name: boto3>=1.18.0
   - name: netaddr
 
 roles:
