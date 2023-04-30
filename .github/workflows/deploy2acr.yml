@@ -17,6 +17,37 @@ on:
         default: 'latest'
         required: true
         type: string
+    secrets:
+      AZURE_CREDENTIALS:
+        description: 'required for Azure registry login'
+        required: false
+      AZURE_CLIENT_ID:
+        description: 'required for Azure registry login'
+        required: false
+      AZURE_TENANT_ID:
+        description: 'required for Azure registry login'
+        required: false
+      AZURE_SUBSCRIPTION_ID:
+        description: 'required for Azure registry login'
+        required: false
+      RESOURCE_GROUP:
+        description: 'required for Azure registry login'
+        required: false
+      REGISTRY_LOGIN_SERVER:
+        description: 'required for Azure registry login'
+        required: false
+      REGISTRY_USERNAME:
+        description: 'required for Azure registry login'
+        required: false
+      REGISTRY_PASSWORD:
+        description: 'required for Azure registry login'
+        required: false
+      REDHAT_USERNAME:
+        description: 'required for Azure registry login'
+        required: false
+      REDHAT_PASSWORD:
+        description: 'required for Azure registry login'
+        required: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -40,8 +71,16 @@ jobs:
       - name: Login via Azure CLI
         uses: azure/login@v1
         with:
-          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+          creds: '{"clientId":"${{ secrets.REGISTRY_USERNAME }}","clientSecret":"${{ secrets.REGISTRY_PASSWORD }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
           allow-no-subscriptions: true
+
+      - name: Log in to registry.redhat.io
+        id: registry-redhat
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: registry.redhat.io
+          username: ${{ secrets.REDHAT_USERNAME }}
+          password: ${{ secrets.REDHAT_PASSWORD }}
 
       - name: Build image
         id: build-image
@@ -50,20 +89,12 @@ jobs:
           ansible-builder build \
           --tag=${{ inputs.EE_FOLDER_NAME }}:${{ inputs.EE_IMAGE_TAG }}
            
-      - name: Push To Azure Container Registry
-        id: push-to-acr
-        uses: azure/aci-deploy@v1
-        with:
-          resource-group: ${{ secrets.RESOURCE_GROUP }}
-          dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }}
-          image: ${{ inputs.EE_FOLDER_NAME }}
-          tags: |
-            ${{ inputs.EE_IMAGE_TAG }}
-          registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-          registry-username: ${{ secrets.REGISTRY_USERNAME }}
-          registry-password: ${{ secrets.REGISTRY_PASSWORD }} 
-          name: ${{ inputs.EE_FOLDER_NAME }}
-          location: eastus2
+      - name: Push to Azure Container Registry 
+        id: push-to-dekalbcontainers
+        run: |
+          podman login ${{ secrets.REGISTRY_LOGIN_SERVER }} -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }}
+          podman tag ${{ inputs.EE_FOLDER_NAME }} ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ inputs.EE_FOLDER_NAME }}:${{ inputs.EE_IMAGE_TAG }}
+          podman push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ inputs.EE_FOLDER_NAME }}
 
       - name: Print image url
         run: echo "Image pushed to ${{ steps.push-to-acr.outputs.registry-paths }}"
