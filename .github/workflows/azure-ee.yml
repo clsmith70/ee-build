@@ -33,5 +33,11 @@ jobs:
       REGISTRY_LOGIN_SERVER: ${{ secrets.REGISTRY_LOGIN_SERVER }}
       REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+    uses:  clsmith70/ee-build/.github/workflows/deploy.yml@main
+    with:
+      EE_FOLDER_NAME: 'azure-ee'
+      EE_IMAGE_TAG: 'latest'
+      QUAY_USER: 'ole088'
+    secrets:
       REDHAT_USERNAME: ${{ secrets.REDHAT_USERNAME }}
       REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
