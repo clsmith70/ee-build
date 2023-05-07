@@ -3,6 +3,4 @@ collections:
   - name: amazon.aws
   - name: community.general
   - name: awx.awx
-
-roles:
-  - name: redhatinsights.insights-client
+  - name: redhatinsights.insights
